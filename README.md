@@ -21,3 +21,6 @@ $ pip install -r requirements.txt
 ```
 $ python3 main.py
 ```
+
+## How it looks
+![Alt text](https://raw.githubusercontent.com/matheusnicolas/readme-images/master/Screenshot%202023-08-15%20at%2010.26.53.png)

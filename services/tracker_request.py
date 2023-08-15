@@ -31,6 +31,7 @@ def request_data(platform: str, nickname: str):
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, "html.parser")
         player_name = soup.find('span', attrs={'class': 'trn-profile-header__name'}).text.strip()
+        player_image_url = get_content_from_attrs(soup, CLASS,'trn-profile-header__avatar').find('img')['src']
         general_stats = get_content_from_attrs(soup, CLASS, 'trn-defstats--width4')
         wins = get_content_from_attrs(general_stats, DATA_STAT, 'PVPMatchesWon').contents[0].strip()
         general_kd_ratio = get_content_from_attrs(general_stats, DATA_STAT, 'PVPKDRatio').contents[0].strip()
@@ -79,11 +80,11 @@ def request_data(platform: str, nickname: str):
             elif name == RANK:
                 current_rank = current_stat
 
-        embed = discord.Embed(title=player_name, color=0x7289DA)
-
-        embed.add_field(name=GENERAL, value="\u200b", inline=False)
+        embed = discord.Embed(title="Click to see full profile", url=url, color=0x7289DA)
+        embed.set_author(name=player_name, icon_url=player_image_url)
+        embed.add_field(name=GENERAL, value="", inline=False)
         embed.add_field(name=LEVEL, value=player_level, inline=True)
-
+    
         general_stats = (
             (BEST_MMR, best_mmr),
             ("Total Ranked Time Played", ranked_time),
@@ -96,7 +97,8 @@ def request_data(platform: str, nickname: str):
         for stat, value in general_stats:
             embed.add_field(name=stat, value=value, inline=True)
 
-        embed.add_field(name="Current Season [Ranked]", value="\u200b", inline=False)
+        embed.add_field(name="", value="\u200b", inline=False)
+        embed.add_field(name="Current Season [Ranked]", value="", inline=False)
 
         # Current Season [Ranked]
         current_season_stats = (
