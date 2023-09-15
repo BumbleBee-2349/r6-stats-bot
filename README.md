@@ -6,7 +6,7 @@
 
 To run the bot, make sure you have Python3+ installed. You can set up the project by following these steps:
 
-1. Clone the project to your repository
+1. Clone the project to your repository and if you want to run locally
 ```
 $ cd r6-stats-bot
 ```
@@ -20,6 +20,15 @@ $ pip install -r requirements.txt
 3. Run the bot:
 ```
 $ python3 main.py
+```
+
+4. You can run on a docker container as well, so build the image:
+```
+$ docker build --tag r6-bot .
+```
+5. Run the bot on a docker container:
+```
+$ docker run --name r6-bot -d r6-bot
 ```
 
 ## How it looks
