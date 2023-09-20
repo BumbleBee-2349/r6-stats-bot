@@ -1,16 +1,16 @@
-# bot.py
 import os
-import discord
+from core.embed import get_discord_intents, invalid_title_message
 from dotenv import load_dotenv
 from responses.response import handle_response
 from discord.ext import commands
 
 
 load_dotenv()
-intents = discord.Intents.default()
+intents = get_discord_intents()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
+
 
 async def send_message(message, user_message, is_private):
     try:
@@ -38,10 +38,9 @@ def run():
 
         print(f"{username} said: '{user_message}' ({channel})")
 
-        if user_message[0] == "!":
-            user_message = user_message[1:]
-            await send_message(message, user_message, is_private=True)
-        else:
-            await send_message(message, user_message, is_private=False)
+        if "stats" not in channel:
+            return
+
+        await send_message(message, user_message, is_private=False)
     
     bot.run(TOKEN)

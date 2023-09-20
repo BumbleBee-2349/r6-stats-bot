@@ -1,19 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-from prettytable import PrettyTable
 from utils.constants import *
-import discord
-
-
-current_kd = ""
-current_kills_match = ""
-current_kills = ""
-current_deaths = ""
-current_win_percentage = ""
-current_wins = ""
-current_losses = ""
-current_abandons = ""
-current_rank = ""
+from core.embed import full_profile_title_message, failed_retrieving_stats_message
 
 
 def get_content_from_attrs(html: any, attrs: str, value: str):
@@ -35,21 +23,26 @@ def request_data(platform: str, nickname: str):
         general_stats = get_content_from_attrs(soup, CLASS, 'trn-defstats--width4')
         wins = get_content_from_attrs(general_stats, DATA_STAT, 'PVPMatchesWon').contents[0].strip()
         general_kd_ratio = get_content_from_attrs(general_stats, DATA_STAT, 'PVPKDRatio').contents[0].strip()
-        win_percentage = get_content_from_attrs(general_stats, DATA_STAT, 'PVPWLRatio').contents[0].strip()
         pvp_deaths = get_content_from_attrs(soup, DATA_STAT, 'PVPDeaths').contents[0].strip()
         hs_percent = get_content_from_attrs(soup, DATA_STAT, 'PVPAccuracy').contents[0].strip()
         ranked_time = get_content_from_attrs(soup, DATA_STAT, 'RankedTimePlayed').contents[0].strip()
         stats_div = get_content_from_attrs(soup, CLASS, 'r6-season__stats')
-
-        ranked_kd = stats_div.find(DIV, attrs={CLASS: TRN_DEF_STAT__NAME}, string=KD).find_next_sibling(
-            DIV).text.strip()
-
         best_mmr = soup.find(DIV, string=BEST_MMR).find_next(DIV,
                                                              attrs={CLASS: TRN_DEF_STAT__VALUE_STYLIZED}).next.strip()
         player_level = soup.find(DIV, string=LEVEL).find_next(DIV,
                                                               attrs={CLASS: TRN_DEF_STAT__VALUE_STYLIZED}).next.strip()
         general_kills = soup.find(DIV, string=KILLS).find_next(DIV, attrs={CLASS: TRN_DEF_STAT__VALUE}).next.strip()
         stats = stats_div.find_all(DIV, attrs={CLASS: 'trn-defstat'})
+
+        current_kd = ""
+        current_kills_match = ""
+        current_kills = ""
+        current_deaths = ""
+        current_win_percentage = ""
+        current_wins = ""
+        current_losses = ""
+        current_abandons = ""
+        current_rank = ""
 
         for stat in stats:
 
@@ -80,7 +73,7 @@ def request_data(platform: str, nickname: str):
             elif name == RANK:
                 current_rank = current_stat
 
-        embed = discord.Embed(title="Click to see full profile", url=url, color=0x7289DA)
+        embed = full_profile_title_message(url)
         embed.set_author(name=player_name, icon_url=player_image_url)
         embed.add_field(name=GENERAL, value="", inline=False)
         embed.add_field(name=LEVEL, value=player_level, inline=True)
@@ -118,4 +111,4 @@ def request_data(platform: str, nickname: str):
         return embed
 
     else:
-        return discord.Embed(title=f"Failed to retrieve the stats for nickname -> {nickname_input}", color=0x7289DA)
+        return failed_retrieving_stats_message(nickname_input)

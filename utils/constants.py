@@ -18,5 +18,6 @@ ABANDONS = "Abandons"
 RANK = "Rank"
 LEVEL = "Level"
 BEST_MMR = "Best MMR"
+CORN_FLOWER_BLUE_COLOR = 0x7289DA
 
 TRN_DEF_STAT__VALUE_STYLIZED = "trn-defstat__value-stylized"
