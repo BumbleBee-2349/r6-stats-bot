@@ -1,11 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from utils.constants import *
-from core.embed import full_profile_title_message, failed_retrieving_stats_message
-
-
-def get_content_from_attrs(html: any, attrs: str, value: str):
-    return html.find(DIV, attrs={attrs: value})
+from core.embed import full_profile_title_message, failed_retrieving_stats_message, failed_retrieving_stats_invalid_message
 
 
 def request_data(platform: str, nickname: str):
@@ -19,7 +15,7 @@ def request_data(platform: str, nickname: str):
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, "html.parser")
         player_name = soup.find('span', attrs={'class': 'trn-profile-header__name'}).text.strip()
-        player_image_url = get_content_from_attrs(soup, CLASS,'trn-profile-header__avatar').find('img')['src']
+        player_image_url = get_content_from_attrs(soup, CLASS, 'trn-profile-header__avatar').find('img')['src']
         general_stats = get_content_from_attrs(soup, CLASS, 'trn-defstats--width4')
         wins = get_content_from_attrs(general_stats, DATA_STAT, 'PVPMatchesWon').contents[0].strip()
         general_kd_ratio = get_content_from_attrs(general_stats, DATA_STAT, 'PVPKDRatio').contents[0].strip()
@@ -27,12 +23,16 @@ def request_data(platform: str, nickname: str):
         hs_percent = get_content_from_attrs(soup, DATA_STAT, 'PVPAccuracy').contents[0].strip()
         ranked_time = get_content_from_attrs(soup, DATA_STAT, 'RankedTimePlayed').contents[0].strip()
         stats_div = get_content_from_attrs(soup, CLASS, 'r6-season__stats')
-        best_mmr = soup.find(DIV, string=BEST_MMR).find_next(DIV,
-                                                             attrs={CLASS: TRN_DEF_STAT__VALUE_STYLIZED}).next.strip()
-        player_level = soup.find(DIV, string=LEVEL).find_next(DIV,
-                                                              attrs={CLASS: TRN_DEF_STAT__VALUE_STYLIZED}).next.strip()
-        general_kills = soup.find(DIV, string=KILLS).find_next(DIV, attrs={CLASS: TRN_DEF_STAT__VALUE}).next.strip()
-        stats = stats_div.find_all(DIV, attrs={CLASS: 'trn-defstat'})
+
+        best_mmr = get_optional_info(soup, BEST_MMR, TRN_DEF_STAT__VALUE_STYLIZED)
+        player_level = get_optional_info(soup, LEVEL, TRN_DEF_STAT__VALUE_STYLIZED)
+        general_kills = get_optional_info(soup, KILLS, TRN_DEF_STAT__VALUE)
+
+        try:
+            stats = stats_div.find_all(DIV, attrs={CLASS: 'trn-defstat'})
+        except:
+            return failed_retrieving_stats_invalid_message(nickname_input)
+
 
         current_kd = ""
         current_kills_match = ""
@@ -77,7 +77,9 @@ def request_data(platform: str, nickname: str):
         embed.set_author(name=player_name, icon_url=player_image_url)
         embed.add_field(name=GENERAL, value="", inline=False)
         embed.add_field(name=LEVEL, value=player_level, inline=True)
-    
+
+        ranked_time = "NA" if ranked_time == "" else ranked_time
+
         general_stats = (
             (BEST_MMR, best_mmr),
             ("Total Ranked Time Played", ranked_time),
@@ -112,3 +114,16 @@ def request_data(platform: str, nickname: str):
 
     else:
         return failed_retrieving_stats_message(nickname_input)
+
+
+def get_optional_info(soup, module: str, clazz: str):
+    try:
+        best_mmr = soup.find(DIV, string=module).find_next(DIV,
+                                                           attrs={CLASS: clazz}).next.strip()
+    except:
+        best_mmr = "NA"
+    return best_mmr
+
+
+def get_content_from_attrs(html: any, attrs: str, value: str):
+    return html.find(DIV, attrs={attrs: value})
