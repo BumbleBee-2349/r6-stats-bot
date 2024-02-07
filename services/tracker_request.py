@@ -118,11 +118,11 @@ def request_data(platform: str, nickname: str):
 
 def get_optional_info(soup, module: str, clazz: str):
     try:
-        info = soup.find(DIV, string=module).find_next(DIV,
+        best_mmr = soup.find(DIV, string=module).find_next(DIV,
                                                            attrs={CLASS: clazz}).next.strip()
     except:
-        info = "NA"
-    return info
+        best_mmr = "NA"
+    return best_mmr
 
 
 def get_content_from_attrs(html: any, attrs: str, value: str):
