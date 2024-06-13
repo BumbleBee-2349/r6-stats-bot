@@ -1,5 +1,5 @@
 DIV = "div"
-BASE_URL = "https://r6.tracker.network/profile/"
+BASE_URL = "https://r6.tracker.network/r6siege/profile/"
 DATA_STAT = "data-stat"
 AVAILABLE_PLATFORMS = ["psn", "pc", "xbox"]
 KD = "K/D"
